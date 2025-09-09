@@ -1,0 +1,33 @@
+# Gunakan Bun image resmi
+FROM oven/bun:1-alpine
+
+# Set working directory
+WORKDIR /var/www/web
+
+# Salin package file untuk caching deps
+COPY bun.lockb package.json ./
+
+# Install dependencies (bun install lebih cepat dari npm)
+RUN bun install --frozen-lockfile
+
+# Salin seluruh project
+COPY . .
+
+# Prisma generate (kalau dipakai)
+RUN bunx prisma generate
+
+# Build project
+RUN bun run build
+
+# Copy HTML templates (supaya tetap tersedia di dist)
+COPY ./src/utils/reset-password-template.html ./dist/utils/reset-password-template.html
+COPY ./src/utils/email-verification.html ./dist/utils/email-verification.html
+COPY ./src/utils/invoice-email-template.html ./dist/utils/invoice-email-template.html
+COPY ./src/utils/shipping-notification-template.html ./dist/utils/shipping-notification-template.html
+COPY ./src/utils/transaction-cancel-template.html ./dist/utils/transaction-cancel-template.html
+
+# Expose port
+EXPOSE 3001
+
+# Jalankan pakai Bun (start normal, bukan dev)
+CMD ["bun", "run", "start:test"]

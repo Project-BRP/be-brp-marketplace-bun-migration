@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - '3001:${PORT_SERVER}'
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  db:
+    image: postgres:16-alpine3.20
+    environment:
+      POSTGRES_USER: ${USERNAME_DB}
+      POSTGRES_PASSWORD: ${PASSWORD_DB}
+      POSTGRES_DB: ${DATABASE_NAME}
+    ports:
+      - '5432:${PORT_DB}'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${USERNAME_DB}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:latest
+    container_name: redis_service
+    command: ['redis-server', '--requirepass', '${REDIS_PASSWORD}']
+    volumes:
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+    ports:
+      - '${REDIS_PORT}:6379'
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    networks:
+      - app-network
+
+  kafka:
+    image: bitnami/kafka:latest
+    container_name: kafka_service
+    ports:
+      - "${KAFKA_PORT}:${KAFKA_PORT}"
+    environment:
+      - KAFKA_PROCESS_ROLES=broker,controller
+      - KAFKA_KRAFT_CLUSTER_ID=${KAFKA_CLUSTER_ID}
+      - KAFKA_CFG_NODE_ID=${KAFKA_NODE_ID}
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=${KAFKA_NODE_ID}@${KAFKA_HOST}:${KAFKA_CONTROLLER_PORT}
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:${KAFKA_PORT},CONTROLLER://:${KAFKA_CONTROLLER_PORT}
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://${KAFKA_HOST}:${KAFKA_PORT}
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    volumes:
+      - kafka_data:/bitnami/kafka
+    networks:
+      - app-network
+
+volumes:
+  kafka_data:
+  pgdata:
+
+networks:
+  app-network:
+    driver: bridge

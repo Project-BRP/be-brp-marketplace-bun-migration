@@ -1,0 +1,308 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum TxMethod {
+  DELIVERY
+  MANUAL
+}
+
+enum TxDeliveryStatus {
+  UNPAID
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum TxManualStatus {
+  UNPAID
+  PAID
+  PROCESSING
+  COMPLETE
+  CANCELLED
+}
+
+enum ChatSenderType {
+  USER
+  ADMIN
+}
+
+enum ChatAttachmentType {
+  IMAGE
+  VIDEO
+  FILE
+}
+
+model CompanyInfo {
+  id            String   @id @default("COMPANY_INFO") @map("id")
+  companyName   String   @map("company_name")
+  logoUrl       String?  @map("logo_url")
+  email         String   @map("email")
+  phoneNumber   String   @map("phone_number")
+  province      String   @map("province")
+  provinceId    Int      @map("province_id")
+  city          String   @map("city")
+  cityId        Int      @map("city_id")
+  district      String   @map("district")
+  districtId    Int      @map("district_id")
+  subDistrict   String   @map("sub_district")
+  subDistrictId Int      @map("sub_district_id")
+  postalCode    String   @map("postal_code")
+  fullAddress   String   @map("full_address")
+  npwp          String   @map("npwp")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@unique([id])
+  @@map("company_info")
+}
+
+model User {
+  id             String        @id @map("id")
+  email          String        @unique @map("email")
+  password       String        @map("password")
+  phoneNumber    String        @map("phone_number")
+  name           String        @map("name")
+  profilePicture String?       @map("profile_picture")
+  role           Role          @default(USER) @map("role")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+  cart           Cart?
+  transaction    Transaction[]
+  ChatRoom       ChatRoom[]
+  ChatMessage    ChatMessage[]
+
+  @@index([email, name])
+  @@map("users")
+}
+
+model Product {
+  id                     String   @id @map("id")
+  name                   String   @unique @map("name")
+  description            String   @map("description")
+  productTypeId          String?  @map("product_type_id")
+  composition            String   @map("composition")
+  imageUrl               String?  @map("image_url")
+  storageInstructions    String   @map("storage_instructions")
+  expiredDurationInYears Int      @map("expired_duration_in_years")
+  usageInstructions      String   @map("usage_instructions")
+  benefits               String   @map("benefits")
+  isDeleted              Boolean  @default(false) @map("is_deleted")
+  createdAt              DateTime @default(now()) @map("created_at")
+  updatedAt              DateTime @updatedAt @map("updated_at")
+
+  productType     ProductType?     @relation(fields: [productTypeId], references: [id], onDelete: SetNull)
+  productVariants ProductVariant[]
+
+  @@map("products")
+}
+
+model ProductVariant {
+  id           String   @id @map("id")
+  productId    String   @map("product_id")
+  weight_in_kg Int      @map("weight_in_kg")
+  packagingId  String?  @map("packaging_id")
+  imageUrl     String?  @map("image_url")
+  stock        Int      @default(0) @map("stock")
+  priceRupiah  Int      @map("price_rupiah")
+  isDeleted    Boolean  @default(false) @map("is_deleted")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  product         Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  packaging       Packaging?        @relation(fields: [packagingId], references: [id], onDelete: SetNull)
+  cartItem        CartItem[]
+  transactionItem TransactionItem[]
+
+  @@map("product_variants")
+}
+
+model Packaging {
+  id        String   @id @map("id")
+  name      String   @unique @map("name")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  productVariants ProductVariant[]
+
+  @@map("packagings")
+}
+
+model ProductType {
+  id        String   @id @map("id")
+  name      String   @unique @map("name")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  products Product[]
+
+  @@map("product_types")
+}
+
+model Cart {
+  id        String   @id @map("id")
+  userId    String   @unique @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items CartItem[]
+
+  @@map("carts")
+}
+
+model CartItem {
+  id        String   @id @map("id")
+  cartId    String   @map("cart_id")
+  variantId String   @map("variant_id")
+  quantity  Int      @default(1) @map("quantity")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  cart    Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  variant ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@unique([cartId, variantId], name: "unique_cart_variant")
+  @@map("cart_items")
+}
+
+model CurrentPPN {
+  id         String   @id @map("id")
+  name       String   @unique @default("PPN Saat Ini") @map("name")
+  percentage Int      @map("percentage")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@map("current_ppn")
+}
+
+model Transaction {
+  id                 String            @id @map("id")
+  userId             String            @map("user_id")
+  userName           String            @map("user_name")
+  userEmail          String            @map("user_email")
+  userPhoneNumber    String            @map("user_phone_number")
+  method             TxMethod          @default(DELIVERY) @map("method")
+  deliveryStatus     TxDeliveryStatus? @map("delivery_status")
+  manualStatus       TxManualStatus?   @map("manual_status")
+  cleanPrice         Int               @map("clean_price")
+  priceWithPPN       Int               @map("price_with_ppn")
+  totalPrice         Int               @map("total_price")
+  totalWeightInKg    Int               @map("total_weight_in_kg")
+  PPNPercentage      Int?              @map("ppn_percentage")
+  snapToken          String?           @map("snap_token")
+  snapUrl            String?           @map("snap_url")
+  city               String            @map("city")
+  province           String            @map("province")
+  district           String            @map("district")
+  subDistrict        String            @map("sub_district")
+  postalCode         String            @map("postal_code")
+  shippingAddress    String            @map("shipping_address")
+  shippingAgent      String?           @map("shipping_agent")
+  shippingCode       String?           @map("shipping_code")
+  shippingService    String?           @map("shipping_service")
+  shippingEstimate   String?           @map("shipping_estimate")
+  shippingCost       Int?              @map("shipping_cost")
+  shippingReceipt    String?           @map("shipping_receipt")
+  manualShippingCost Int?              @map("manual_extra_cost")
+  paymentMethod      String?           @map("payment_method")
+  cancelReason       String?           @map("cancel_reason")
+  isRefundFailed     Boolean           @default(false) @map("is_refund_failed")
+  createdAt          DateTime          @default(now()) @map("created_at")
+  updatedAt          DateTime          @updatedAt @map("updated_at")
+
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactionItems TransactionItem[]
+
+  @@map("transactions")
+}
+
+model TransactionItem {
+  id            String   @id @map("id")
+  transactionId String   @map("transaction_id")
+  variantId     String   @map("variant_id")
+  quantity      Int      @default(1) @map("quantity")
+  priceRupiah   Int      @map("price_rupiah")
+  isStockIssue  Boolean  @default(false) @map("is_stock_issue")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  transaction Transaction    @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  variant     ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@unique([transactionId, variantId], name: "unique_transaction_variant")
+  @@map("transaction_items")
+}
+
+model ChatRoom {
+  id            String    @id @map("id")
+  userId        String    @map("user_id")
+  lastMessageAt DateTime? @map("last_message_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages ChatMessage[]
+
+  @@index([userId])
+  @@index([lastMessageAt])
+  @@map("chat_conversations")
+}
+
+model ChatMessage {
+  id             String         @id @map("id")
+  roomId         String         @map("room_id")
+  senderId       String         @map("sender_id")
+  senderType     ChatSenderType @map("sender_type")
+  content        String?        @map("content")
+  hasAttachments Boolean        @default(false) @map("has_attachments")
+  isReadByUser   Boolean        @default(false) @map("is_read_by_user")
+  isReadByAdmin  Boolean        @default(false) @map("is_read_by_admin")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+
+  room        ChatRoom         @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  sender      User             @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  attachments ChatAttachment[]
+
+  @@index([roomId])
+  @@index([senderId])
+  @@index([createdAt])
+  @@map("chat_messages")
+}
+
+model ChatAttachment {
+  id        String             @id @map("id")
+  messageId String             @map("message_id")
+  type      ChatAttachmentType @map("type")
+  url       String             @map("url")
+  mimeType  String             @map("mime_type")
+  sizeBytes Int                @map("size_bytes")
+  width     Int?               @map("width")
+  height    Int?               @map("height")
+  createdAt DateTime           @default(now()) @map("created_at")
+  updatedAt DateTime           @updatedAt @map("updated_at")
+
+  message ChatMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([messageId])
+  @@index([createdAt])
+  @@map("chat_attachments")
+}
