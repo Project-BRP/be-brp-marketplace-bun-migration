@@ -9,7 +9,12 @@ export class PPNController {
   static async getCurrentPPN(c: Context): Promise<Response> {
     try {
       const response = await PPNService.getCurrentPPN();
-      return successResponse(c, StatusCodes.OK, 'PPN berhasil ditemukan', response);
+      return successResponse(
+        c,
+        StatusCodes.OK,
+        'PPN berhasil ditemukan',
+        response,
+      );
     } catch (error) {
       throw error;
     }
@@ -19,7 +24,12 @@ export class PPNController {
     try {
       const request = (await c.req.json()) as IUpdatePPNRequest;
       const response = await PPNService.updatePPN(request);
-      return successResponse(c, StatusCodes.OK, 'PPN berhasil diperbarui', response);
+      return successResponse(
+        c,
+        StatusCodes.OK,
+        'PPN berhasil diperbarui',
+        response,
+      );
     } catch (error) {
       throw error;
     }

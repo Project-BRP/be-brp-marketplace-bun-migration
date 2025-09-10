@@ -160,7 +160,11 @@ export class ProductVariantController {
         id: c.req.param('id'),
       };
       await ProductVariantService.delete(request);
-      return successResponse(c, StatusCodes.OK, 'Varian produk berhasil dihapus');
+      return successResponse(
+        c,
+        StatusCodes.OK,
+        'Varian produk berhasil dihapus',
+      );
     } catch (error) {
       throw error;
     }

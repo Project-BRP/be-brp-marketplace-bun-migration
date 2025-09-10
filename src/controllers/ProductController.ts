@@ -95,7 +95,12 @@ export class ProductController {
         id: c.req.param('id'),
       };
       const response = await ProductService.getById(request);
-      return successResponse(c, StatusCodes.OK, 'Produk berhasil ditemukan', response);
+      return successResponse(
+        c,
+        StatusCodes.OK,
+        'Produk berhasil ditemukan',
+        response,
+      );
     } catch (error) {
       throw error;
     }

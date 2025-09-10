@@ -81,7 +81,12 @@ export class AuthController {
       };
       const response = await AuthService.getUser(request);
 
-      return successResponse(c, StatusCodes.OK, 'Berhasil mendapatkan user', response);
+      return successResponse(
+        c,
+        StatusCodes.OK,
+        'Berhasil mendapatkan user',
+        response,
+      );
     } catch (error) {
       throw error;
     }
@@ -141,7 +146,12 @@ export class AuthController {
       };
 
       const response = await AuthService.updateUser(request);
-      return successResponse(c, StatusCodes.OK, 'Berhasil mengupdate user', response);
+      return successResponse(
+        c,
+        StatusCodes.OK,
+        'Berhasil mengupdate user',
+        response,
+      );
     } catch (error) {
       if (resizedPhotoPath && fs.existsSync(resizedPhotoPath)) {
         try {
