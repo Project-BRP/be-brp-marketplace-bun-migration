@@ -26,6 +26,8 @@ import {
   companyInfoRoute,
   reportRoute,
   chatRoute,
+  productTypeRoute,
+  packagingRoute,
 } from './routes';
 
 // === App Hono ===
@@ -58,11 +60,13 @@ app.onError(errorMiddleware);
 app.get('/uploads/*', staticUploadsHandler);
 
 // Routes
-app.route('/api', healthRoute);
-app.route('/api/auth', authRoute);
-app.route('/api/products', productRoute);
-app.route('/api/product-variants', productVariantRoute);
+app.route('/api/', healthRoute);
 app.route('/api/config', configRoute);
+app.route('/api/auth', authRoute);
+app.route('/api/product-types', productTypeRoute);
+app.route('/api/products', productRoute);
+app.route('/api/packagings', packagingRoute);
+app.route('/api/product-variants', productVariantRoute);
 app.route('/api/carts', cartRoute);
 app.route('/api/cart-items', cartItemRoute);
 app.route('/api/ppn', ppnRoute);
