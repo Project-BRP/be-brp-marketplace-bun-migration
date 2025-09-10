@@ -4,7 +4,7 @@ import fs from 'fs';
 
 export async function staticUploadsHandler(c: Context) {
   const rel = c.req.path.replace(/^\/uploads\//, '');
-  const baseDir = path.resolve(__dirname, '..', '..', process.env.UPLOAD_DIR);
+  const baseDir = path.resolve(__dirname, '..', '..', process.env.UPLOADS_PATH);
   const filePath = path.join(baseDir, rel);
 
   if (!fs.existsSync(filePath)) {
