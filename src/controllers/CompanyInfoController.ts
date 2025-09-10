@@ -6,7 +6,7 @@ import { CompanyInfoService } from '../services';
 import { successResponse } from '../utils';
 
 export class CompanyInfoController {
-  static async createCompanyInfo(c: Context) {
+  static async createCompanyInfo(c: Context): Promise<Response> {
     try {
       const request = (await c.req.json()) as ICreateCompanyInfoRequest;
       const response = await CompanyInfoService.createCompanyInfo(request);
@@ -21,7 +21,7 @@ export class CompanyInfoController {
     }
   }
 
-  static async updateCompanyInfo(c: Context) {
+  static async updateCompanyInfo(c: Context): Promise<Response> {
     try {
       const request = (await c.req.json()) as IUpdateCompanyInfoRequest;
       const response = await CompanyInfoService.updateCompanyInfo(request);
@@ -36,7 +36,7 @@ export class CompanyInfoController {
     }
   }
 
-  static async getCompanyInfo(c: Context) {
+  static async getCompanyInfo(c: Context): Promise<Response> {
     try {
       const response = await CompanyInfoService.getCompanyInfo();
       return successResponse(

@@ -13,11 +13,11 @@ import { ProductTypeService } from '../services';
 import { successResponse } from '../utils';
 
 export class ProductTypeController {
-  static async createProductType(c: Context): Promise<void> {
+  static async createProductType(c: Context): Promise<Response> {
     try {
       const request = (await c.req.json()) as ICreateProductTypeRequest;
       const response = await ProductTypeService.create(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.CREATED,
         'Tipe produk berhasil ditambahkan',
@@ -28,14 +28,14 @@ export class ProductTypeController {
     }
   }
 
-  static async updateProductType(c: Context): Promise<void> {
+  static async updateProductType(c: Context): Promise<Response> {
     try {
       const request = {
         id: c.req.param().id,
         ...(await c.req.json()),
       } as IUpdateProductTypeRequest;
       const response = await ProductTypeService.update(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Tipe produk berhasil diperbarui',
@@ -46,13 +46,13 @@ export class ProductTypeController {
     }
   }
 
-  static async getProductTypeById(c: Context): Promise<void> {
+  static async getProductTypeById(c: Context): Promise<Response> {
     try {
       const request = {
         id: c.req.param().id,
       } as IGetProductTypeRequest;
       const response = await ProductTypeService.getById(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Tipe produk berhasil ditemukan',
@@ -63,7 +63,7 @@ export class ProductTypeController {
     }
   }
 
-  static async getAllProductTypes(c: Context): Promise<void> {
+  static async getAllProductTypes(c: Context): Promise<Response> {
     try {
       const request = {
         search: c.req.query().search ? (c.req.query().search as string) : null,
@@ -75,7 +75,7 @@ export class ProductTypeController {
           : null,
       } as IGetAllProductTypesRequest;
       const response = await ProductTypeService.getAll(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Daftar tipe produk berhasil diambil',
@@ -86,13 +86,13 @@ export class ProductTypeController {
     }
   }
 
-  static async deleteProductType(c: Context): Promise<void> {
+  static async deleteProductType(c: Context): Promise<Response> {
     try {
       const request = {
         id: c.req.param().id,
       } as IDeleteProductTypeRequest;
       await ProductTypeService.delete(request);
-      successResponse(c, StatusCodes.OK, 'Tipe produk berhasil dihapus');
+      return successResponse(c, StatusCodes.OK, 'Tipe produk berhasil dihapus');
     } catch (error) {
       throw error;
     }

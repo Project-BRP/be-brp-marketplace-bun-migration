@@ -20,12 +20,12 @@ import { AuthService } from '../services';
 import { SharpUtils, successResponse } from '../utils';
 
 export class AuthController {
-  static async register(c: Context): Promise<void> {
+  static async register(c: Context): Promise<Response> {
     try {
       const request = (await c.req.json()) as IRegisterRequest;
       const response = await AuthService.register(request);
 
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.CREATED,
         'Email verifikasi berhasil dikirim',
@@ -36,7 +36,7 @@ export class AuthController {
     }
   }
 
-  static async verifyEmail(c: Context): Promise<void> {
+  static async verifyEmail(c: Context): Promise<Response> {
     try {
       const request: IVerifyEmailRequest = {
         token: c.req.param('token'),
@@ -50,13 +50,13 @@ export class AuthController {
         maxAge: JWT_CONFIG.JWT_EXPIRES_IN,
       });
 
-      successResponse(c, StatusCodes.OK, 'Verifikasi email berhasil');
+      return successResponse(c, StatusCodes.OK, 'Verifikasi email berhasil');
     } catch (error) {
       throw error;
     }
   }
 
-  static async login(c: Context): Promise<void> {
+  static async login(c: Context): Promise<Response> {
     try {
       const request = (await c.req.json()) as ILoginRequest;
       const response = await AuthService.login(request);
@@ -68,26 +68,26 @@ export class AuthController {
         maxAge: JWT_CONFIG.JWT_EXPIRES_IN,
       });
 
-      successResponse(c, StatusCodes.OK, 'Login Sukses');
+      return successResponse(c, StatusCodes.OK, 'Login Sukses');
     } catch (error) {
       throw error;
     }
   }
 
-  static async getUser(c: Context): Promise<void> {
+  static async getUser(c: Context): Promise<Response> {
     try {
       const request: IGetUserRequest = {
         userId: c.get('user').userId,
       };
       const response = await AuthService.getUser(request);
 
-      successResponse(c, StatusCodes.OK, 'Berhasil mendapatkan user', response);
+      return successResponse(c, StatusCodes.OK, 'Berhasil mendapatkan user', response);
     } catch (error) {
       throw error;
     }
   }
 
-  static async getAllUsers(c: Context): Promise<void> {
+  static async getAllUsers(c: Context): Promise<Response> {
     try {
       let isActive: boolean | null = null;
       if (typeof c.req.query('isActive') === 'string') {
@@ -110,7 +110,7 @@ export class AuthController {
       };
 
       const response = await AuthService.getAll(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Berhasil mendapatkan semua user',
@@ -121,7 +121,7 @@ export class AuthController {
     }
   }
 
-  static async updateUser(c: Context): Promise<void> {
+  static async updateUser(c: Context): Promise<Response> {
     let resizedPhotoPath: string | undefined;
 
     try {
@@ -141,7 +141,7 @@ export class AuthController {
       };
 
       const response = await AuthService.updateUser(request);
-      successResponse(c, StatusCodes.OK, 'Berhasil mengupdate user', response);
+      return successResponse(c, StatusCodes.OK, 'Berhasil mengupdate user', response);
     } catch (error) {
       if (resizedPhotoPath && fs.existsSync(resizedPhotoPath)) {
         try {
@@ -154,25 +154,25 @@ export class AuthController {
     }
   }
 
-  static async deleteUser(c: Context): Promise<void> {
+  static async deleteUser(c: Context): Promise<Response> {
     try {
       const request: IDeleteUserRequest = {
         userId: c.get('user').userId,
       };
       await AuthService.deleteUser(request);
 
-      successResponse(c, StatusCodes.OK, 'Berhasil menghapus user');
+      return successResponse(c, StatusCodes.OK, 'Berhasil menghapus user');
     } catch (error) {
       throw error;
     }
   }
 
-  static async forgotPassword(c: Context): Promise<void> {
+  static async forgotPassword(c: Context): Promise<Response> {
     try {
       const request = (await c.req.json()) as IForgotPasswordRequest;
       await AuthService.forgotPassword(request);
 
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Berhasil mengirim email reset password',
@@ -182,32 +182,32 @@ export class AuthController {
     }
   }
 
-  static async checkResetToken(c: Context): Promise<void> {
+  static async checkResetToken(c: Context): Promise<Response> {
     try {
       const request = (await c.req.json()) as ICheckResetTokenRequest;
       await AuthService.checkResetToken(request);
 
-      successResponse(c, StatusCodes.OK, 'OK');
+      return successResponse(c, StatusCodes.OK, 'OK');
     } catch (error) {
       throw error;
     }
   }
 
-  static async resetPassword(c: Context): Promise<void> {
+  static async resetPassword(c: Context): Promise<Response> {
     try {
       const request = (await c.req.json()) as IResetPasswordRequest;
       await AuthService.resetPassword(request);
 
-      successResponse(c, StatusCodes.OK, 'Berhasil mereset password');
+      return successResponse(c, StatusCodes.OK, 'Berhasil mereset password');
     } catch (error) {
       throw error;
     }
   }
 
-  static async logout(c: Context): Promise<void> {
+  static async logout(c: Context): Promise<Response> {
     try {
       deleteCookie(c, 'token');
-      successResponse(c, StatusCodes.OK, 'Logged out berhasil');
+      return successResponse(c, StatusCodes.OK, 'Logged out berhasil');
     } catch (error) {
       throw error;
     }

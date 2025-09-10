@@ -12,10 +12,10 @@ import { ShippingService } from '../services';
 import { successResponse } from '../utils';
 
 export class ShippingController {
-  static async getProvinces(c: Context): Promise<void> {
+  static async getProvinces(c: Context): Promise<Response> {
     try {
       const response = await ShippingService.getProvinces();
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Daftar provinsi berhasil diambil',
@@ -26,14 +26,14 @@ export class ShippingController {
     }
   }
 
-  static async getCities(c: Context): Promise<void> {
+  static async getCities(c: Context): Promise<Response> {
     try {
       const request = {
         provinceId: Number(c.req.param().provinceId),
       } as IGetCitiesRequest;
 
       const response = await ShippingService.getCities(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Daftar kota berhasil diambil',
@@ -44,7 +44,7 @@ export class ShippingController {
     }
   }
 
-  static async getDistricts(c: Context): Promise<void> {
+  static async getDistricts(c: Context): Promise<Response> {
     try {
       const request = {
         provinceId: Number(c.req.param().provinceId),
@@ -52,7 +52,7 @@ export class ShippingController {
       } as IGetDistrictsRequest;
 
       const response = await ShippingService.getDistricts(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Daftar kecamatan berhasil diambil',
@@ -63,7 +63,7 @@ export class ShippingController {
     }
   }
 
-  static async getSubDistricts(c: Context): Promise<void> {
+  static async getSubDistricts(c: Context): Promise<Response> {
     try {
       const request = {
         provinceId: Number(c.req.param().provinceId),
@@ -72,7 +72,7 @@ export class ShippingController {
       } as IGetSubDistrictsRequest;
 
       const response = await ShippingService.getSubDistricts(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Daftar kelurahan berhasil diambil',
@@ -83,11 +83,11 @@ export class ShippingController {
     }
   }
 
-  static async checkCost(c: Context): Promise<void> {
+  static async checkCost(c: Context): Promise<Response> {
     try {
       const request = (await c.req.json()) as ICheckCostRequest;
       const response = await ShippingService.checkCost(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Estimasi biaya pengiriman berhasil diambil',
@@ -98,7 +98,7 @@ export class ShippingController {
     }
   }
 
-  static async track(c: Context): Promise<void> {
+  static async track(c: Context): Promise<Response> {
     try {
       const request: ITrackShippingRequest = {
         transactionId: c.req.param().transactionId,
@@ -106,7 +106,7 @@ export class ShippingController {
         userRole: c.get('user').role,
       };
       const response = await ShippingService.trackTransaction(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Status pengiriman berhasil diambil',
@@ -117,7 +117,7 @@ export class ShippingController {
     }
   }
 
-  static async trackMock(c: Context): Promise<void> {
+  static async trackMock(c: Context): Promise<Response> {
     try {
       const request: ITrackShippingRequest = {
         transactionId: c.req.param().transactionId,
@@ -127,7 +127,7 @@ export class ShippingController {
       const response = await ShippingService.trackTransaction(request, {
         mock: true,
       });
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Status pengiriman (mock) berhasil diambil',

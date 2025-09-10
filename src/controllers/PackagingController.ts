@@ -13,11 +13,11 @@ import { PackagingService } from '../services';
 import { successResponse } from '../utils';
 
 export class PackagingController {
-  static async createPackaging(c: Context): Promise<void> {
+  static async createPackaging(c: Context): Promise<Response> {
     try {
       const request = (await c.req.json()) as ICreatePackagingRequest;
       const response = await PackagingService.create(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.CREATED,
         'Kemasan berhasil ditambahkan',
@@ -28,14 +28,14 @@ export class PackagingController {
     }
   }
 
-  static async updatePackaging(c: Context): Promise<void> {
+  static async updatePackaging(c: Context): Promise<Response> {
     try {
       const request = {
         id: c.req.param().id,
         ...(await c.req.json()),
       } as IUpdatePackagingRequest;
       const response = await PackagingService.update(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Kemasan berhasil diperbarui',
@@ -46,13 +46,13 @@ export class PackagingController {
     }
   }
 
-  static async getPackagingById(c: Context): Promise<void> {
+  static async getPackagingById(c: Context): Promise<Response> {
     try {
       const request = {
         id: c.req.param().id,
       } as IGetPackagingRequest;
       const response = await PackagingService.getById(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Kemasan berhasil ditemukan',
@@ -63,7 +63,7 @@ export class PackagingController {
     }
   }
 
-  static async getAllPackagings(c: Context): Promise<void> {
+  static async getAllPackagings(c: Context): Promise<Response> {
     try {
       const request = {
         search: c.req.query().search ? (c.req.query().search as string) : null,
@@ -75,7 +75,7 @@ export class PackagingController {
           : null,
       } as IGetAllPackagingsRequest;
       const response = await PackagingService.getAll(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Daftar kemasan berhasil diambil',
@@ -86,13 +86,13 @@ export class PackagingController {
     }
   }
 
-  static async deletePackaging(c: Context): Promise<void> {
+  static async deletePackaging(c: Context): Promise<Response> {
     try {
       const request = {
         id: c.req.param().id,
       } as IDeletePackagingRequest;
       await PackagingService.delete(request);
-      successResponse(c, StatusCodes.OK, 'Kemasan berhasil dihapus');
+      return successResponse(c, StatusCodes.OK, 'Kemasan berhasil dihapus');
     } catch (error) {
       throw error;
     }

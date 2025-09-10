@@ -19,7 +19,7 @@ import { successResponse } from '../utils';
 import { TxMethod, TxDeliveryStatus, TxManualStatus } from '@prisma/client';
 
 export class TransactionController {
-  static async createTransaction(c: Context): Promise<void> {
+  static async createTransaction(c: Context): Promise<Response> {
     try {
       const body = await c.req.json();
       const request: ICreateTransactionRequest = {
@@ -36,7 +36,7 @@ export class TransactionController {
       };
       const response = await TransactionService.createTransaction(request);
 
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.CREATED,
         'Transaksi berhasil dibuat',
@@ -47,7 +47,7 @@ export class TransactionController {
     }
   }
 
-  static async requestPayment(c: Context): Promise<void> {
+  static async requestPayment(c: Context): Promise<Response> {
     try {
       const request = {
         transactionId: c.req.param().id,
@@ -55,7 +55,7 @@ export class TransactionController {
       } as IRequestPaymentRequest;
 
       const response = await TransactionService.requestPayment(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Permintaan pembayaran berhasil',
@@ -66,7 +66,7 @@ export class TransactionController {
     }
   }
 
-  static async transactionNotif(c: Context): Promise<void> {
+  static async transactionNotif(c: Context): Promise<Response> {
     try {
       const body = await c.req.json();
       const request = {
@@ -81,7 +81,7 @@ export class TransactionController {
 
       await TransactionService.transactionNotif(request);
 
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Transaction notification received successfully',
@@ -91,7 +91,7 @@ export class TransactionController {
     }
   }
 
-  static async getById(c: Context): Promise<void> {
+  static async getById(c: Context): Promise<Response> {
     try {
       const request: IGetTransactionRequest = {
         id: c.req.param().id,
@@ -100,7 +100,7 @@ export class TransactionController {
       };
 
       const response = await TransactionService.getById(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Detail transaksi berhasil diambil',
@@ -111,7 +111,7 @@ export class TransactionController {
     }
   }
 
-  static async getAll(c: Context): Promise<void> {
+  static async getAll(c: Context): Promise<Response> {
     try {
       let isStockIssue: boolean | undefined = undefined;
       if (typeof c.req.query().isStockIssue !== 'undefined') {
@@ -153,7 +153,7 @@ export class TransactionController {
       };
 
       const response = await TransactionService.getAll(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Daftar transaksi berhasil diambil',
@@ -164,7 +164,7 @@ export class TransactionController {
     }
   }
 
-  static async getByUserId(c: Context): Promise<void> {
+  static async getByUserId(c: Context): Promise<Response> {
     try {
       let isStockIssue: boolean | undefined = undefined;
       if (typeof c.req.query().isStockIssue !== 'undefined') {
@@ -209,7 +209,7 @@ export class TransactionController {
       };
 
       const response = await TransactionService.getAllByUserId(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Daftar transaksi berhasil diambil',
@@ -220,7 +220,7 @@ export class TransactionController {
     }
   }
 
-  static async updateTransactionStatus(c: Context): Promise<void> {
+  static async updateTransactionStatus(c: Context): Promise<Response> {
     try {
       const body = await c.req.json();
       const request: IUpdateTransactionRequest = {
@@ -238,7 +238,7 @@ export class TransactionController {
       };
 
       const response = await TransactionService.updateTransaction(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Status transaksi berhasil diperbarui',
@@ -249,7 +249,7 @@ export class TransactionController {
     }
   }
 
-  static async updateShippingReceipt(c: Context): Promise<void> {
+  static async updateShippingReceipt(c: Context): Promise<Response> {
     try {
       const body = await c.req.json();
       const request: IUpdateShippingReceiptRequest = {
@@ -258,7 +258,7 @@ export class TransactionController {
       };
 
       const response = await TransactionService.updateShippingReceipt(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Nomor resi pengiriman berhasil diperbarui',
@@ -269,7 +269,7 @@ export class TransactionController {
     }
   }
 
-  static async addManualShippingCost(c: Context): Promise<void> {
+  static async addManualShippingCost(c: Context): Promise<Response> {
     try {
       const body = await c.req.json();
       const request: IAddManualShippingCostRequest = {
@@ -278,7 +278,7 @@ export class TransactionController {
       };
 
       const response = await TransactionService.addManualShippingCost(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Biaya pengiriman manual berhasil ditambahkan',
@@ -289,7 +289,7 @@ export class TransactionController {
     }
   }
 
-  static async cancelTransaction(c: Context): Promise<void> {
+  static async cancelTransaction(c: Context): Promise<Response> {
     try {
       const body = await c.req.json();
       const request: ICancelTransactionRequest = {
@@ -300,7 +300,7 @@ export class TransactionController {
       };
 
       const response = await TransactionService.cancelTransaction(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Transaksi berhasil dibatalkan',
@@ -311,7 +311,7 @@ export class TransactionController {
     }
   }
 
-  static async resolveStockIssue(c: Context): Promise<void> {
+  static async resolveStockIssue(c: Context): Promise<Response> {
     try {
       const body = await c.req.json();
       const request: IResolveStockIssueRequest = {
@@ -320,7 +320,7 @@ export class TransactionController {
       };
 
       const response = await TransactionService.resolveStockIssueItem(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Percobaan resolve stock issue selesai',
@@ -331,10 +331,10 @@ export class TransactionController {
     }
   }
 
-  static async getTxStatusList(c: Context): Promise<void> {
+  static async getTxStatusList(c: Context): Promise<Response> {
     try {
       const response = await TransactionService.getTxStatusList();
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Daftar status transaksi berhasil diambil',
@@ -345,10 +345,10 @@ export class TransactionController {
     }
   }
 
-  static async getTxMethodList(c: Context): Promise<void> {
+  static async getTxMethodList(c: Context): Promise<Response> {
     try {
       const response = await TransactionService.getTxMethodList();
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Daftar metode transaksi berhasil diambil',
@@ -359,10 +359,10 @@ export class TransactionController {
     }
   }
 
-  static async getTransactionDateRanges(c: Context): Promise<void> {
+  static async getTransactionDateRanges(c: Context): Promise<Response> {
     try {
       const response = await TransactionService.getTransactionDateRanges();
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Daftar rentang tanggal transaksi berhasil diambil',

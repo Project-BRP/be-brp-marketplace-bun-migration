@@ -5,11 +5,9 @@ import { ConfigService } from '../services';
 import { successResponse } from '../utils';
 import { IUploadLogoRequest } from '../dtos';
 import { ResponseError } from 'error/ResponseError';
-import fs from 'fs';
-import { appLogger } from '../configs/logger';
 
 export class ConfigController {
-  static async uploadLogo(c: Context): Promise<void> {
+  static async uploadLogo(c: Context): Promise<Response> {
     try {
       const body = await c.req.parseBody();
       const file = body['image'] as File | undefined;
@@ -24,7 +22,7 @@ export class ConfigController {
       const uploadRequest: IUploadLogoRequest = { file };
       const response = await ConfigService.uploadLogo(uploadRequest);
 
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.CREATED,
         'Logo perusahaan berhasil diunggah',
@@ -35,10 +33,10 @@ export class ConfigController {
     }
   }
 
-  static async getLogo(c: Context): Promise<void> {
+  static async getLogo(c: Context): Promise<Response> {
     try {
       const logoUrl = await ConfigService.getLogo();
-      successResponse(c, StatusCodes.OK, 'Logo berhasil diambil', {
+      return successResponse(c, StatusCodes.OK, 'Logo berhasil diambil', {
         imageUrl: logoUrl,
       });
     } catch (error) {

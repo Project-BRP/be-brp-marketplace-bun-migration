@@ -1,33 +1,42 @@
-# Gunakan Bun image resmi
-FROM oven/bun:1-alpine
+# ========== Stage 1: Dependencies & Build (pakai Node.js) ==========
+FROM node:current-alpine3.20 AS build
 
-# Set working directory
 WORKDIR /var/www/web
 
 # Salin package file untuk caching deps
-COPY bun.lock package.json ./
+COPY package.json bun.lock ./
 
-# Install dependencies (bun install lebih cepat dari npm)
-RUN bun install --frozen-lockfile
+# Install deps dengan npm (buat Prisma CLI aman)
+RUN npm install --legacy-peer-deps
 
 # Salin seluruh project
 COPY . .
 
-# Prisma generate (kalau dipakai)
-RUN bunx prisma generate
+# Generate Prisma Client (wajib pakai Node)
+RUN npx prisma generate
 
-# Build project
-RUN bun run build
+# Build TS -> JS
+RUN npm run build
 
-# Copy HTML templates (supaya tetap tersedia di dist)
+
+# ========== Stage 2: Runtime (pakai Bun) ==========
+FROM oven/bun:1-alpine AS runtime
+
+WORKDIR /var/www/web
+
+# Salin hanya file yang perlu untuk runtime
+COPY --from=build /var/www/web/node_modules ./node_modules
+COPY --from=build /var/www/web/dist ./dist
+COPY --from=build /var/www/web/prisma ./prisma
+COPY --from=build /var/www/web/package.json ./package.json
+
+# Copy HTML templates ke dist
 COPY ./src/utils/reset-password-template.html ./dist/utils/reset-password-template.html
 COPY ./src/utils/email-verification.html ./dist/utils/email-verification.html
 COPY ./src/utils/invoice-email-template.html ./dist/utils/invoice-email-template.html
 COPY ./src/utils/shipping-notification-template.html ./dist/utils/shipping-notification-template.html
 COPY ./src/utils/transaction-cancel-template.html ./dist/utils/transaction-cancel-template.html
 
-# Expose port
 EXPOSE 3001
 
-# Jalankan pakai Bun (start normal, bukan dev)
-CMD ["bun", "run", "start:dev"]
+CMD ["bun", "run", "start:prod"]

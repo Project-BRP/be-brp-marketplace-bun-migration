@@ -14,7 +14,7 @@ import { ProductService } from '../services';
 import { appLogger } from '../configs/logger';
 
 export class ProductController {
-  static async createProduct(c: Context): Promise<void> {
+  static async createProduct(c: Context): Promise<Response> {
     let resizedImagePath: string | undefined;
 
     try {
@@ -33,7 +33,7 @@ export class ProductController {
       } as ICreateProductRequest;
 
       const response = await ProductService.create(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.CREATED,
         'Produk berhasil ditambahkan',
@@ -51,7 +51,7 @@ export class ProductController {
     }
   }
 
-  static async updateProduct(c: Context): Promise<void> {
+  static async updateProduct(c: Context): Promise<Response> {
     let resizedImagePath: string | undefined;
 
     try {
@@ -71,7 +71,7 @@ export class ProductController {
       } as IUpdateProductRequest;
 
       const response = await ProductService.update(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Produk berhasil diperbarui',
@@ -89,19 +89,19 @@ export class ProductController {
     }
   }
 
-  static async getProductById(c: Context): Promise<void> {
+  static async getProductById(c: Context): Promise<Response> {
     try {
       const request: IGetProductRequest = {
         id: c.req.param('id'),
       };
       const response = await ProductService.getById(request);
-      successResponse(c, StatusCodes.OK, 'Produk berhasil ditemukan', response);
+      return successResponse(c, StatusCodes.OK, 'Produk berhasil ditemukan', response);
     } catch (error) {
       throw error;
     }
   }
 
-  static async getAllProducts(c: Context): Promise<void> {
+  static async getAllProducts(c: Context): Promise<Response> {
     try {
       const request: IGetAllProductsRequest = {
         search: c.req.query('search') ?? undefined,
@@ -115,7 +115,7 @@ export class ProductController {
       };
 
       const response = await ProductService.getAll(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Daftar produk berhasil diambil',
@@ -126,13 +126,13 @@ export class ProductController {
     }
   }
 
-  static async deleteProduct(c: Context): Promise<void> {
+  static async deleteProduct(c: Context): Promise<Response> {
     try {
       const request: IDeleteProductRequest = {
         id: c.req.param('id'),
       };
       await ProductService.delete(request);
-      successResponse(c, StatusCodes.OK, 'Produk berhasil dihapus');
+      return successResponse(c, StatusCodes.OK, 'Produk berhasil dihapus');
     } catch (error) {
       throw error;
     }

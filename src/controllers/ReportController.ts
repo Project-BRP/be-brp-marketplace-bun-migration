@@ -14,7 +14,7 @@ import {
 } from '../dtos';
 
 export class ReportController {
-  static async exportData(c: Context): Promise<void> {
+  static async exportData(c: Context): Promise<Response> {
     try {
       const tables = c.req.query().tables
         ? String(c.req.query().tables)
@@ -48,7 +48,7 @@ export class ReportController {
         .toISOString()
         .replace(/[-:TZ.]/g, '')
         .slice(0, 14);
-      await ZipUtils.pipeZipToResponse(
+      return await ZipUtils.pipeZipToResponse(
         c,
         files,
         `reports_export_${timestamp}.zip`,
@@ -57,11 +57,11 @@ export class ReportController {
       throw error;
     }
   }
-  static async getRevenue(c: Context): Promise<void> {
+  static async getRevenue(c: Context): Promise<Response> {
     try {
       const request = c.req.query() as IGetRevenueRequest;
       const response = await ReportService.getRevenue(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Revenue berhasil diperoleh',
@@ -72,11 +72,11 @@ export class ReportController {
     }
   }
 
-  static async getTotalTransactions(c: Context): Promise<void> {
+  static async getTotalTransactions(c: Context): Promise<Response> {
     try {
       const request = c.req.query() as IGetTotalTransactionsRequest;
       const response = await ReportService.getTotalTransactions(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Total transaksi berhasil diperoleh',
@@ -87,11 +87,11 @@ export class ReportController {
     }
   }
 
-  static async getTotalProductsSold(c: Context): Promise<void> {
+  static async getTotalProductsSold(c: Context): Promise<Response> {
     try {
       const request = c.req.query() as IGetTotalProductsSoldRequest;
       const response = await ReportService.getTotalProductsSold(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Total produk terjual berhasil diperoleh',
@@ -102,11 +102,11 @@ export class ReportController {
     }
   }
 
-  static async getTotalActiveUsers(c: Context): Promise<void> {
+  static async getTotalActiveUsers(c: Context): Promise<Response> {
     try {
       const request = c.req.query() as IGetTotalActiveUsersRequest;
       const response = await ReportService.getTotalActiveUsers(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Total pengguna aktif berhasil diperoleh',
@@ -117,11 +117,11 @@ export class ReportController {
     }
   }
 
-  static async getMonthlyRevenue(c: Context): Promise<void> {
+  static async getMonthlyRevenue(c: Context): Promise<Response> {
     try {
       const request = c.req.query() as IGetMonthlyRevenueRequest;
       const response = await ReportService.getMonthlyRevenue(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Data pendapatan bulanan berhasil diperoleh',
@@ -132,12 +132,12 @@ export class ReportController {
     }
   }
 
-  static async getMostSoldProductsDistribution(c: Context): Promise<void> {
+  static async getMostSoldProductsDistribution(c: Context): Promise<Response> {
     try {
       const request = c.req.query() as IGetMostSoldProductsDistributionRequest;
       const response =
         await ReportService.getMostSoldProductsDistribution(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Data distribusi produk terlaris berhasil diperoleh',
@@ -148,10 +148,10 @@ export class ReportController {
     }
   }
 
-  static async getTodayTotalTransactions(c: Context): Promise<void> {
+  static async getTodayTotalTransactions(c: Context): Promise<Response> {
     try {
       const response = await ReportService.getTodayTotalTransactions();
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Data total transaksi hari ini berhasil diperoleh',
@@ -162,10 +162,10 @@ export class ReportController {
     }
   }
 
-  static async getCurrentMonthRevenue(c: Context): Promise<void> {
+  static async getCurrentMonthRevenue(c: Context): Promise<Response> {
     try {
       const response = await ReportService.getCurrentMonthRevenue();
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Data pendapatan bulan ini berhasil diperoleh',
@@ -176,10 +176,10 @@ export class ReportController {
     }
   }
 
-  static async getTotalProducts(c: Context): Promise<void> {
+  static async getTotalProducts(c: Context): Promise<Response> {
     try {
       const response = await ReportService.getTotalProducts();
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Total produk berhasil diperoleh',

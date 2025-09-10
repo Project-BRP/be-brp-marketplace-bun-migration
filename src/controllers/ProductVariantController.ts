@@ -16,7 +16,7 @@ import { ProductVariantService } from '../services';
 import { appLogger } from '../configs/logger';
 
 export class ProductVariantController {
-  static async createProductVariant(c: Context): Promise<void> {
+  static async createProductVariant(c: Context): Promise<Response> {
     let resizedImagePath: string | undefined;
 
     try {
@@ -36,7 +36,7 @@ export class ProductVariantController {
       } as ICreateProductVariantRequest;
 
       const response = await ProductVariantService.create(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.CREATED,
         'Varian produk berhasil ditambahkan',
@@ -54,7 +54,7 @@ export class ProductVariantController {
     }
   }
 
-  static async updateProductVariant(c: Context): Promise<void> {
+  static async updateProductVariant(c: Context): Promise<Response> {
     let resizedImagePath: string | undefined;
 
     try {
@@ -74,7 +74,7 @@ export class ProductVariantController {
       } as IUpdateProductVariantRequest;
 
       const response = await ProductVariantService.update(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Varian produk berhasil diperbarui',
@@ -92,7 +92,7 @@ export class ProductVariantController {
     }
   }
 
-  static async editStock(c: Context): Promise<void> {
+  static async editStock(c: Context): Promise<Response> {
     try {
       const body = await c.req.json();
       const request: IEditStockRequest = {
@@ -101,7 +101,7 @@ export class ProductVariantController {
       };
 
       const response = await ProductVariantService.editStock(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Stok varian produk berhasil diperbarui',
@@ -112,13 +112,13 @@ export class ProductVariantController {
     }
   }
 
-  static async getProductVariantById(c: Context): Promise<void> {
+  static async getProductVariantById(c: Context): Promise<Response> {
     try {
       const request: IGetProductVariantRequest = {
         id: c.req.param('id'),
       };
       const response = await ProductVariantService.getById(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Varian produk berhasil ditemukan',
@@ -129,7 +129,7 @@ export class ProductVariantController {
     }
   }
 
-  static async getAllProductVariants(c: Context): Promise<void> {
+  static async getAllProductVariants(c: Context): Promise<Response> {
     try {
       const request: IGetAllProductVariantsRequest = {
         productId:
@@ -143,7 +143,7 @@ export class ProductVariantController {
       };
 
       const response = await ProductVariantService.getAll(request);
-      successResponse(
+      return successResponse(
         c,
         StatusCodes.OK,
         'Daftar varian produk berhasil diambil',
@@ -154,13 +154,13 @@ export class ProductVariantController {
     }
   }
 
-  static async deleteProductVariant(c: Context): Promise<void> {
+  static async deleteProductVariant(c: Context): Promise<Response> {
     try {
       const request: IDeleteProductVariantRequest = {
         id: c.req.param('id'),
       };
       await ProductVariantService.delete(request);
-      successResponse(c, StatusCodes.OK, 'Varian produk berhasil dihapus');
+      return successResponse(c, StatusCodes.OK, 'Varian produk berhasil dihapus');
     } catch (error) {
       throw error;
     }
