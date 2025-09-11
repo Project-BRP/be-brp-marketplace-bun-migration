@@ -98,7 +98,12 @@ const engine = new Engine({
 });
 
 // Attach engine ke IO
-export const io = new IOServer();
+export const io = new IOServer({
+  cors: {
+    origin,
+    credentials: true,
+  },
+});
 
 // Bind engine yang sudah dikonfigurasi ke IO
 io.bind(engine);
