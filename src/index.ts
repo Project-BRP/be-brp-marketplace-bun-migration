@@ -33,21 +33,24 @@ import {
 // === App Hono ===
 const app = new Hono();
 
+let origin: string[] = [];
+
+if (currentEnv === Env.DEVELOPMENT) {
+  origin = [CLIENT_URL.DEVELOPMENT, CLIENT_URL.LOCAL];
+} else if (currentEnv === Env.PRODUCTION) {
+  origin = [CLIENT_URL.PRODUCTION];
+} else if (currentEnv === Env.TESTING) {
+  origin = [CLIENT_URL.LOCAL];
+} else {
+  appLogger.error('Invalid environment');
+  process.exit(1);
+}
+
 // CORS
 app.use(
   '*',
   cors({
-    origin: origin => {
-      if (!origin) return origin;
-      const allow =
-        currentEnv === Env.PRODUCTION
-          ? [CLIENT_URL.PRODUCTION]
-          : [CLIENT_URL.DEVELOPMENT, CLIENT_URL.LOCAL];
-      if (allow.includes(origin)) return origin;
-      return currentEnv === Env.PRODUCTION
-        ? CLIENT_URL.PRODUCTION
-        : CLIENT_URL.DEVELOPMENT;
-    },
+    origin: origin,
     credentials: true,
   }),
 );
@@ -79,16 +82,13 @@ app.route('/api/chats', chatRoute);
 // === Socket.IO + Bun Engine ===
 export const io = new IOServer({
   cors: {
-    origin:
-      currentEnv === Env.PRODUCTION
-        ? CLIENT_URL.PRODUCTION
-        : [CLIENT_URL.DEVELOPMENT, CLIENT_URL.LOCAL],
+    origin: origin,
     credentials: true,
   },
 });
 
 const engine = new Engine({
-  path: '/socket.io/',
+  path: '/socket.io',
 });
 
 io.bind(engine);
@@ -106,7 +106,7 @@ Bun.serve({
   fetch(req, server) {
     const url = new URL(req.url);
 
-    if (url.pathname.startsWith('/socket.io/')) {
+    if (url.pathname === '/socket.io' || url.pathname.startsWith('/socket.io/')) {
       return engine.handleRequest(req, server);
     }
 
