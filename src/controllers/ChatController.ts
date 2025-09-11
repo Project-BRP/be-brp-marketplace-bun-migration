@@ -202,7 +202,7 @@ export class ChatController {
       const request: ICreateChatMessageRequest = {
         currentUserId: c.get('user')?.userId,
         currentUserRole: c.get('user')?.role as Role,
-        userId: String(body['userId']),
+        userId: (c.req.query().userId as string) || null,
         content: String(body['content'] ?? ''),
         attachments: attachmentsMeta,
       };
