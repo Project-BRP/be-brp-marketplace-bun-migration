@@ -125,11 +125,15 @@ Bun.serve({
 
     // Tangkap '/socket.io' dan '/socket.io/*'
     if (pathname.startsWith('/socket.io')) {
-      // Forward cookie dari req ke engine agar bisa diakses di middlewar
+      // 🔑 Bridge: clone Request & tambahkan header 'x-cookie-bridge' jika ada cookie
+      const origHeaders = new Headers(req.headers);
+      const cookie = origHeaders.get('cookie');
+      if (cookie) {
+        origHeaders.set('x-cookie-bridge', cookie);
+      }
 
-      return engine.handleRequest(req, server);
-      // Atau equivalen:
-      // return io.engine.handleRequest(req, server);
+      const bridgedReq = new Request(req, { headers: origHeaders });
+      return engine.handleRequest(bridgedReq, server);
     }
 
     // Lainnya ke Hono (REST)
