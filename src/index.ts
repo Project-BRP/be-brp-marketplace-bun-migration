@@ -90,7 +90,7 @@ app.route('/api/chats', chatRoute);
  */
 // =========================
 const engine = new Engine({
-  path: '/socket.io/',
+  path: '/socket.io',
   cors: {
     origin,
     credentials: true,
@@ -98,12 +98,7 @@ const engine = new Engine({
 });
 
 // Attach engine ke IO
-export const io = new IOServer({
-  cors: {
-    origin,
-    credentials: true,
-  },
-});
+export const io = new IOServer();
 
 // Bind engine yang sudah dikonfigurasi ke IO
 io.bind(engine);
@@ -128,7 +123,7 @@ Bun.serve({
     const { pathname } = new URL(req.url);
 
     // Tangkap '/socket.io' dan '/socket.io/*'
-    if (pathname.startsWith('/socket.io/')) {
+    if (pathname.startsWith('/socket.io')) {
       // Penting: gunakan engine yang SUDAH dikonfigurasi CORS
       return engine.handleRequest(req, server);
       // Atau equivalen:
