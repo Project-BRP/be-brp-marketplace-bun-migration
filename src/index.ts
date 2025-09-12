@@ -103,10 +103,16 @@ engine.on('connection', (conn: any, req: Request) => {
     req.headers.forEach((value, key) => {
       headers[key.toLowerCase()] = value;
     });
+    const url = new URL(req.url);
     // Bentuk minimal yang dibutuhkan Socket.IO: request.headers (+url opsional)
     (conn as any).request = {
       headers,
       url: req.url,
+      connection: {
+        encrypted:
+          headers['x-forwarded-proto'] === 'https' || url.protocol === 'https:',
+      },
+      _query: Object.fromEntries(url.searchParams.entries()),
     } as any;
     // Alamat IP (opsional, dipakai untuk handshake.address)
     (conn as any).remoteAddress =
