@@ -96,6 +96,26 @@ const engine = new Engine({
   },
 });
 
+// Tambahkan request headers dari Bun Request ke engine socket
+engine.on('connection', (conn: any, req: Request) => {
+  try {
+    const headers: Record<string, string> = {};
+    req.headers.forEach((value, key) => {
+      headers[key.toLowerCase()] = value;
+    });
+    // Bentuk minimal yang dibutuhkan Socket.IO: request.headers (+url opsional)
+    (conn as any).request = {
+      headers,
+      url: req.url,
+    } as any;
+    // Alamat IP (opsional, dipakai untuk handshake.address)
+    (conn as any).remoteAddress =
+      headers['x-forwarded-for'] || headers['cf-connecting-ip'] || '';
+  } catch (e) {
+    // noop
+  }
+});
+
 // Bind engine ke instance Socket.IO (wajib agar handshake+headers diteruskan)
 export const io = new IOServer();
 io.bind(engine);
