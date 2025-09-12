@@ -85,8 +85,7 @@ app.route('/api/chats', chatRoute);
 // =========================
 /**
  * Socket.IO + Bun Engine
- * - CORS HARUS DIDEFINISIKAN DI ENGINE karena yang membalas polling/WS adalah engine.
- * - Path diseragamkan: '/socket.io' (tanpa trailing slash).
+ * - CORS didefinisikan di Engine karena yang membalas polling/WS adalah engine.
  */
 // =========================
 const engine = new Engine({
@@ -97,12 +96,9 @@ const engine = new Engine({
   },
 });
 
-// ❌ HAPUS pola lama:
-// export const io = new IOServer();
-// io.bind(engine);
-
-// ✅ GUNAKAN pola ini (pass engine via options object):
-export const io = new IOServer({ wsEngine: engine });
+// Bind engine ke instance Socket.IO (wajib agar handshake+headers diteruskan)
+export const io = new IOServer();
+io.bind(engine);
 
 // Auth middleware & registrasi handler
 io.use(socketAuthMiddleware);
@@ -123,20 +119,9 @@ Bun.serve({
   fetch(req, server) {
     const { pathname } = new URL(req.url);
 
-    // Tangkap '/socket.io' dan '/socket.io/*'
+    // Tangkap '/socket.io' dan '/socket.io/*';
     if (pathname.startsWith('/socket.io')) {
-      const isWsUpgrade = req.headers.get('upgrade')?.toLowerCase() === 'websocket';
-      if (isWsUpgrade) {
-        // 🚀 WebSocket: JANGAN di-clone; serahkan original req ke engine
-        return engine.handleRequest(req, server);
-      }
-
-      // 🧱 Polling: aman di-clone + sisipkan bridge
-      const h = new Headers(req.headers);
-      const cookie = h.get('cookie');
-      if (cookie) h.set('x-cookie-bridge', cookie);
-      const bridgedReq = new Request(req, { headers: h });
-      return engine.handleRequest(bridgedReq, server);
+      return engine.handleRequest(req, server);
     }
 
     // Lainnya ke Hono (REST)
