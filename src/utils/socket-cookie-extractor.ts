@@ -1,13 +1,33 @@
-import { parse } from 'cookie';
+import { parse as parseCookie } from 'cookie';
 
-export const socketCookieExtractor = (handshake: any): string | null => {
-  let token: string | null = null;
+function getHeaderCaseInsensitive(
+  headers: any,
+  name: string,
+): string | string[] | undefined {
+  if (!headers) return undefined;
 
-  const cookieHeader = handshake?.headers?.cookie;
-  if (typeof cookieHeader === 'string') {
-    const cookies = parse(cookieHeader);
-    token = cookies['token'] ?? null;
+  // 1) Headers (Fetch API)
+  if (typeof headers.get === 'function') {
+    // Headers.get() sudah case-insensitive
+    return headers.get(name) ?? undefined;
   }
 
-  return token;
+  // 2) Plain object (Node-style)
+  for (const key of Object.keys(headers)) {
+    if (key.toLowerCase() === name.toLowerCase()) {
+      const v = (headers as any)[key];
+      return Array.isArray(v) ? v : String(v);
+    }
+  }
+
+  return undefined;
+}
+
+export const socketCookieExtractor = (handshake: any): string | null => {
+  const raw = getHeaderCaseInsensitive(handshake?.headers, 'cookie');
+  if (!raw) return null;
+
+  const cookieStr = Array.isArray(raw) ? raw.join('; ') : String(raw);
+  const cookies = parseCookie(cookieStr);
+  return cookies['token'] ?? null;
 };
