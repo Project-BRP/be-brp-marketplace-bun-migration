@@ -127,7 +127,7 @@ Bun.serve({
       // Forward cookie dari req ke engine agar bisa diakses di middleware
       const cookie = req.headers.get('cookie');
       if (cookie) {
-        (req as any).headers['cookie'] = cookie;
+        req.headers.set('cookie', cookie);
       }
 
       return engine.handleRequest(req, server);
