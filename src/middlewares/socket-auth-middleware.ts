@@ -15,7 +15,7 @@ export const socketAuthMiddleware = async (
 
   try {
     // 1) Coba ambil dari cookie
-    token = socketCookieExtractor(socket.handshake);
+    token = socketCookieExtractor(socket);
 
     // 2) Jika tidak ada, coba dari Authorization header
     if (!token) {

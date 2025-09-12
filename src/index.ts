@@ -124,11 +124,7 @@ Bun.serve({
 
     // Tangkap '/socket.io' dan '/socket.io/*'
     if (pathname.startsWith('/socket.io')) {
-      // Forward cookie dari req ke engine agar bisa diakses di middleware
-      const cookie = req.headers.get('cookie');
-      if (cookie) {
-        req.headers.set('cookie', cookie);
-      }
+      // Forward cookie dari req ke engine agar bisa diakses di middlewar
 
       return engine.handleRequest(req, server);
       // Atau equivalen:
