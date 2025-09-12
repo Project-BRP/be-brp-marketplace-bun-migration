@@ -124,7 +124,12 @@ Bun.serve({
 
     // Tangkap '/socket.io' dan '/socket.io/*'
     if (pathname.startsWith('/socket.io')) {
-      // Penting: gunakan engine yang SUDAH dikonfigurasi CORS
+      // Forward cookie dari req ke engine agar bisa diakses di middleware
+      const cookie = req.headers.get('cookie');
+      if (cookie) {
+        (req as any).headers['cookie'] = cookie;
+      }
+
       return engine.handleRequest(req, server);
       // Atau equivalen:
       // return io.engine.handleRequest(req, server);
