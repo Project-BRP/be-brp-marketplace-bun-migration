@@ -104,13 +104,13 @@ export class AuthController {
       const request: IGetAllUserRequest = {
         search: c.req.query('search')
           ? (c.req.query('search') as string)
-          : null,
+          : undefined,
         page: c.req.query('page')
           ? parseInt(c.req.query('page') as string, 10)
-          : null,
+          : undefined,
         limit: c.req.query('limit')
           ? parseInt(c.req.query('limit') as string, 10)
-          : null,
+          : undefined,
         isActive,
       };
 

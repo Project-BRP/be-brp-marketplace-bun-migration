@@ -66,13 +66,13 @@ export class PackagingController {
   static async getAllPackagings(c: Context): Promise<Response> {
     try {
       const request = {
-        search: c.req.query().search ? (c.req.query().search as string) : null,
+        search: c.req.query().search ? (c.req.query().search as string) : undefined,
         page: c.req.query().page
           ? parseInt(c.req.query().page as string, 10)
-          : null,
+          : undefined,
         limit: c.req.query().limit
           ? parseInt(c.req.query().limit as string, 10)
-          : null,
+          : undefined,
       } as IGetAllPackagingsRequest;
       const response = await PackagingService.getAll(request);
       return successResponse(

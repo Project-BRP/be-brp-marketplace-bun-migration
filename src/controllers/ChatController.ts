@@ -83,13 +83,13 @@ export class ChatController {
   static async getAllRooms(c: Context): Promise<Response> {
     try {
       const request: IGetAllChatRoomsRequest = {
-        search: (c.req.query().search as string) || null,
+        search: (c.req.query().search as string) || undefined,
         page: c.req.query().page
           ? parseInt(c.req.query().page as string, 10)
-          : null,
+          : undefined,
         limit: c.req.query().limit
           ? parseInt(c.req.query().limit as string, 10)
-          : null,
+          : undefined,
       };
 
       const response = await ChatService.getAllRooms(request);
@@ -202,7 +202,7 @@ export class ChatController {
       const request: ICreateChatMessageRequest = {
         currentUserId: c.get('user')?.userId,
         currentUserRole: c.get('user')?.role as Role,
-        userId: (c.req.query().userId as string) || null,
+        userId: (c.req.query().userId as string) || undefined,
         content: String(body['content'] ?? ''),
         attachments: attachmentsMeta,
       };

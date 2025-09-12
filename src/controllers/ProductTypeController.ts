@@ -17,7 +17,8 @@ export class ProductTypeController {
     try {
       const request = (await c.req.json()) as ICreateProductTypeRequest;
       const response = await ProductTypeService.create(request);
-      return successResponse(
+      return 
+      successResponse(
         c,
         StatusCodes.CREATED,
         'Tipe produk berhasil ditambahkan',
@@ -35,7 +36,8 @@ export class ProductTypeController {
         ...(await c.req.json()),
       } as IUpdateProductTypeRequest;
       const response = await ProductTypeService.update(request);
-      return successResponse(
+      return 
+      successResponse(
         c,
         StatusCodes.OK,
         'Tipe produk berhasil diperbarui',
@@ -52,7 +54,8 @@ export class ProductTypeController {
         id: c.req.param().id,
       } as IGetProductTypeRequest;
       const response = await ProductTypeService.getById(request);
-      return successResponse(
+      return 
+      successResponse(
         c,
         StatusCodes.OK,
         'Tipe produk berhasil ditemukan',
@@ -66,16 +69,17 @@ export class ProductTypeController {
   static async getAllProductTypes(c: Context): Promise<Response> {
     try {
       const request = {
-        search: c.req.query().search ? (c.req.query().search as string) : null,
+        search: c.req.query().search ? (c.req.query().search as string) : undefined,
         page: c.req.query().page
           ? parseInt(c.req.query().page as string, 10)
-          : null,
+          : undefined,
         limit: c.req.query().limit
           ? parseInt(c.req.query().limit as string, 10)
-          : null,
+          : undefined,
       } as IGetAllProductTypesRequest;
       const response = await ProductTypeService.getAll(request);
-      return successResponse(
+      return 
+      successResponse(
         c,
         StatusCodes.OK,
         'Daftar tipe produk berhasil diambil',
@@ -92,7 +96,8 @@ export class ProductTypeController {
         id: c.req.param().id,
       } as IDeleteProductTypeRequest;
       await ProductTypeService.delete(request);
-      return successResponse(c, StatusCodes.OK, 'Tipe produk berhasil dihapus');
+      return 
+      successResponse(c, StatusCodes.OK, 'Tipe produk berhasil dihapus');
     } catch (error) {
       throw error;
     }
