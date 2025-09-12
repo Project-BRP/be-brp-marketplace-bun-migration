@@ -97,11 +97,12 @@ const engine = new Engine({
   },
 });
 
-// Attach engine ke IO
-export const io = new IOServer();
+// ❌ HAPUS pola lama:
+// export const io = new IOServer();
+// io.bind(engine);
 
-// Bind engine yang sudah dikonfigurasi ke IO
-io.bind(engine);
+// ✅ GUNAKAN pola ini (pass engine via options object):
+export const io = new IOServer({ wsEngine: engine });
 
 // Auth middleware & registrasi handler
 io.use(socketAuthMiddleware);
