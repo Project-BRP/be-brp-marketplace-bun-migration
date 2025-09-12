@@ -125,14 +125,17 @@ Bun.serve({
 
     // Tangkap '/socket.io' dan '/socket.io/*'
     if (pathname.startsWith('/socket.io')) {
-      // 🔑 Bridge: clone Request & tambahkan header 'x-cookie-bridge' jika ada cookie
-      const origHeaders = new Headers(req.headers);
-      const cookie = origHeaders.get('cookie');
-      if (cookie) {
-        origHeaders.set('x-cookie-bridge', cookie);
+      const isWsUpgrade = req.headers.get('upgrade')?.toLowerCase() === 'websocket';
+      if (isWsUpgrade) {
+        // 🚀 WebSocket: JANGAN di-clone; serahkan original req ke engine
+        return engine.handleRequest(req, server);
       }
 
-      const bridgedReq = new Request(req, { headers: origHeaders });
+      // 🧱 Polling: aman di-clone + sisipkan bridge
+      const h = new Headers(req.headers);
+      const cookie = h.get('cookie');
+      if (cookie) h.set('x-cookie-bridge', cookie);
+      const bridgedReq = new Request(req, { headers: h });
       return engine.handleRequest(bridgedReq, server);
     }
 
